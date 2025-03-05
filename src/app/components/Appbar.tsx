@@ -1,19 +1,33 @@
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react"
-import { PrimaryButton } from "./Button";
+import { signIn, signOut, useSession } from "next-auth/react";
+import Nav from "./Nav";
+import { useEffect, useState } from "react";
 
 export const Appbar = () => {
-    const session = useSession(); 
-    return <div className="border-b px-2 py-2 flex justify-between">
-        <div className="text-xl font-bold flex flex-col justify-center">
-            DCEX
-        </div>
-        <div>
-            {session.data?.user ? <PrimaryButton onClick={() => {
-                signOut()
-            }}>Logout</PrimaryButton> : <PrimaryButton onClick={() => {
-                signIn()
-            }}>Signin</PrimaryButton>}
-        </div>
+  const session = useSession();
+  const [buttonText, setButtonText] = useState("Signin");
+
+  useEffect(() => {
+    if (session.data?.user) {
+      setButtonText("Logout");
+    } else {
+      setButtonText("Signin");
+    }
+  }, [session]);
+
+  const handleButtonClick = () => {
+    if (session.data?.user) {
+      console.log("Signing out...");
+      signOut().catch((error) => console.error("Sign out error:", error));
+    } else {
+      console.log("Signing in...");
+      signIn().catch((error) => console.error("Sign in error:", error));
+    }
+  };
+
+  return (
+    <div>
+      <Nav text={buttonText} handler={handleButtonClick} />
     </div>
-} 
+  );
+};
